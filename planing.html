@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="X-icon" href="Logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الطريق إلى الأفضل - منظّم المهام</title>
+    <style>
+        :root {
+            --primary: #7AB3EF;
+            --secondary: #FFB74D;
+            --background: #1A202C;
+            --text: #E2E8F0;
+            --card-bg: #2D3748;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] {            
+            --primary: #2A5C82;
+            --secondary: #FFA726;
+            --background: #f4f4f4;
+            --text: #2D3748;
+            --card-bg: #FFFFFF;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            transition: 0.3s all;
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            color: var(--primary);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: 0.3s all;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+        }
+
+        .theme-icon {
+            width: 25px;
+            height: 25px;
+            display: block;
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .Points {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ff7e29;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: 0.3s all;
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .Points:hover {
+            transform: translateY(-2px);
+            background: #FF9800;
+        }
+
+        .points-icon {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+
+        /* Main Layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        /* Task Section */
+        .task-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            min-height: 400px;
+        }
+
+        .day-selector {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--primary);
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1.1rem;
+        }
+
+        option {
+            background-color: var(--card-bg);
+            color: var(--text);
+        }
+
+        .task-input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--primary);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        .task-input::placeholder {
+            color: #a0aec0;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: 0.3s all;
+            font-size: 1rem;
+        }
+
+        .add-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Task List */
+        .task-list {
+            list-style: none;
+            padding: 0.5rem;
+            margin: 0;
+            min-height: 150px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--card-bg);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--shadow);
+            width: 100%;
+            opacity: 0;
+            transform: translateX(100%);
+            flex-wrap: wrap;
+        }
+
+        .task-item.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .task-item.deleting {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            opacity: 0.7;
+            color: var(--primary);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            margin-left: 1rem;
+            cursor: pointer;
+            appearance: none;
+            position: relative;
+            transition: 0.3s all;
+            flex-shrink: 0;
+        }
+
+        .task-checkbox:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .task-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+        }
+
+        .task-text {
+            flex: 1;
+            font-size: 1rem;
+            word-wrap: break-word;
+            max-width: 100%;
+            margin: 0.5rem 1rem;
+            min-width: 0;
+        }
+
+        .delete-btn {
+            background: transparent;
+            border: none;
+            color: #E53E3E;
+            cursor: pointer;
+            padding: 0.5rem;
+            font-size: 1.2rem;
+            transition: 0.3s all;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover {
+            background-color: rgba(231, 68, 68, 0.1);
+        }
+
+        /* Task Navigation */
+        .task-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s all;
+        }
+
+        .nav-btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+
+        /* Tips Section */
+        .tips-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .tips-title {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .tips-list {
+            list-style: none;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tip-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .tip-content strong {
+            color: var(--secondary);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text);
+            opacity: 0.8;
+        }
+
+        /* Page Number */
+        #page-indicator {
+            font-size: 1rem;
+            color: var(--text);
+            margin: 0;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+        }
+
+        /* Popup styling */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            backdrop-filter: blur(0);
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            backdrop-filter: blur(5px);
+        }
+
+        .popup-content {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            color: var(--text);
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .popup-overlay.active .popup-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .popup-content h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .popup-content p {
+            margin: 1rem 0;
+            font-size: 1rem;
+            color: var(--text);
+        }
+
+        .popup-close-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 2rem;
+            font-size: 1rem;
+            transition: 0.3s all;
+            text-decoration: none;
+        }
+
+        .popup-close-btn:hover {
+            background: #FF9800;
+            transform: translateY(-2px);
+        }
+
+        .close-icon {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+        }
+
+        /* ======================== */
+        /* RESPONSIVE DESIGN */
+        /* ======================== */
+
+        /* Tablets (768px - 991px) */
+        @media (max-width: 991px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .task-card {
+                min-height: 350px;
+            }
+
+            .task-input-group {
+                flex-direction: column;
+            }
+
+            .add-btn {
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .task-text {
+                max-width: 100%;
+            }
+        }
+
+        /* Small tablets and large phones (600px - 767px) */
+        @media (max-width: 767px) {
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1.25rem;
+            }
+
+            .header h1 {
+                text-align: center;
+                font-size: 1.6rem;
+            }
+
+            .header-buttons {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .theme-toggle,
+            .Points {
+                padding: 0.65rem 1.3rem;
+                font-size: 0.95rem;
+            }
+
+            .task-card,
+            .tips-card {
+                padding: 1.25rem;
+            }
+
+            .day-selector {
+                font-size: 1rem;
+            }
+
+            .task-input {
+                font-size: 0.95rem;
+            }
+
+            .task-text {
+                font-size: 0.95rem;
+                max-width: calc(100% - 80px);
+            }
+
+            .tips-title {
+                font-size: 1.3rem;
+            }
+
+            .tip-item {
+                margin-bottom: 1.25rem;
+            }
+        }
+
+        /* Small phones (480px - 599px) */
+        @media (max-width: 599px) {
+            .container {
+                padding: 1.25rem;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .theme-toggle,
+            .Points {
+                padding: 0.55rem 1.1rem;
+                font-size: 0.85rem;
+            }
+
+            .task-card {
+                min-height: 250px;
+            }
+
+            .day-selector {
+                padding: 0.75rem;
+                font-size: 0.95rem;
+            }
+
+            .task-input {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+
+            .add-btn {
+                font-size: 0.9rem;
+            }
+
+            .task-text {
+                font-size: 0.9rem;
+                max-width: calc(100% - 70px);
+                margin: 0.25rem 0.5rem;
+            }
+
+            .delete-btn {
+                font-size: 1rem;
+                width: 28px;
+                height: 28px;
+                margin-right: auto;
+            }
+
+            .task-navigation {
+                padding: 0.75rem;
+            }
+
+            .nav-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            #page-indicator {
+                font-size: 0.9rem;
+            }
+
+            .tips-card {
+                padding: 1rem;
+            }
+
+            .tips-title {
+                font-size: 1.2rem;
+                margin-bottom: 1.25rem;
+            }
+
+            .tip-icon {
+                width: 35px;
+                height: 35px;
+            }
+
+            .tip-item {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Extra small phones (up to 479px) */
+        @media (max-width: 479px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .theme-toggle,
+            .Points {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+
+            .task-card {
+                padding: 1rem;
+            }
+
+            .day-selector {
+                font-size: 0.9rem;
+            }
+
+            .task-input {
+                font-size: 0.85rem;
+            }
+
+            .task-text {
+                font-size: 0.85rem;
+                max-width: calc(100% - 60px);
+            }
+
+            .delete-btn {
+                font-size: 0.9rem;
+                width: 28px;
+                height: 28px;
+            }
+
+            .task-navigation {
+                padding: 0.5rem;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .nav-btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.8rem;
+                flex: 1;
+                min-width: 80px;
+            }
+
+            #page-indicator {
+                font-size: 0.8rem;
+                flex-basis: 100%;
+                order: -1;
+            }
+
+            .tips-card {
+                padding: 0.75rem;
+            }
+
+            .tips-title {
+                font-size: 1.1rem;
+            }
+
+            .tip-icon {
+                width: 30px;
+                height: 30px;
+            }
+
+            .footer {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Landscape Orientation for Tablets and Mobile Devices */
+        @media (max-width: 991px) and (orientation: landscape) {
+            .main-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .header h1 {
+                text-align: right;
+            }
+
+            .task-input-group {
+                flex-direction: row;
+            }
+
+            .add-btn {
+                width: auto;
+                padding: 0 1.5rem;
+            }
+
+            .task-text {
+                max-width: calc(100% - 80px);
+            }
+        }
+
+        /* Very small height devices */
+        @media (max-height: 600px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                margin-bottom: 1rem;
+            }
+
+            .task-card {
+                min-height: 250px;
+            }
+
+            .task-navigation {
+                bottom: 10px;
+            }
+
+            .tips-card {
+                padding: 1rem;
+            }
+
+            .tip-item {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* High DPI (Retina) displays */
+        @media only screen and (-webkit-min-device-pixel-ratio: 2),
+        only screen and (min-resolution: 192dpi) {
+
+            .theme-icon,
+            .points-icon,
+            .close-icon,
+            .tip-icon {
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="popup-overlay" id="popup">
+            <div class="popup-content">
+                <h2>لماذا الدعم ؟</h2>
+                <p>- 40% سأستخدمها في طلب العلم وكل ما يساعدني على الدعوة إلى اللّه عز وجل.</p>
+                <p>- 40% لدعم المواقع الدعوية المذكورة في الموقع.</p>
+                <p>- 20% دعم المشاريع كبناء المساجد و طباعة القرأن الكريم...إلخ.</p>
+                <button class="popup-close-btn" id="closePopupBtn">
+                    <strong>دعم</strong> <img src="paypal.png" alt="Close Icon" class="close-icon">
+                </button>
+            </div>
+        </div>
+        <header class="header">
+            <h1>الطريق إلى الأفضل</h1>
+            <div class="header-buttons">
+                <button class="Points" id="pointsBtn">
+                    للدعم
+                    <img src="paypal.png" alt="Points Icon" class="points-icon">
+                </button>
+                
+            </div>
+        </header>
+
+        <div class="main-grid">
+            <!-- Tasks Section -->
+            <main class="task-card">
+                <select class="day-selector" id="day-select">
+                    <option value="saturday">السبت</option>
+                    <option value="sunday">الأحد</option>
+                    <option value="monday">الإثنين</option>
+                    <option value="tuesday">الثلاثاء</option>
+                    <option value="wednesday">الأربعاء</option>
+                    <option value="thursday">الخميس</option>
+                    <option value="friday">الجمعة</option>
+                </select>
+
+                <div class="task-input-group">
+                    <input type="text" class="task-input" id="task-input" placeholder="أضف مهمة جديدة..."
+                        maxlength="80">
+                    <button class="add-btn" id="add-btn">إضافة</button>
+                </div>
+
+                <ul class="task-list" id="task-list">
+                    <!-- Tasks will be added here dynamically -->
+                </ul>
+
+                <!-- Pagination Buttons -->
+                <div class="task-navigation">
+                    <button class="nav-btn" id="prev-btn" disabled>السابق</button>
+                    <span id="page-indicator">الصفحة 1 من 1</span>
+                    <button class="nav-btn" id="next-btn">التالي</button>
+                </div>
+            </main>
+
+            <!-- Tips Section -->
+            <aside class="tips-card">
+                <h2 class="tips-title">نصائح تنظيم الوقت</h2>
+                <ul class="tips-list">
+                    <li class="tip-item">
+                        <img src="search.png" class="tip-icon" alt="Priority">
+                        <div class="tip-content">
+                            <strong>التركيز على الأولويات</strong>
+                            <p>ابدأ دائمًا بالمهام الأكثر أهمية والتي تحقق أكبر تأثير</p>
+                        </div>
+                    </li>
+                    <li class="tip-item">
+                        <img src="number.png" class="tip-icon" alt="Tasks">
+                        <div class="tip-content">
+                            <strong>تقليل عدد المهام</strong>
+                            <p>حاول ألا تتجاوز 3 إلى 5 مهام كحد أقصى</p>
+                        </div>
+                    </li>
+                    <li class="tip-item">
+                        <img src="Circumstances.png" class="tip-icon" alt="Planning">
+                        <div class="tip-content">
+                            <strong>مراعات الظروف عند التخطيط</strong>
+                            <p>خطط على أسوء حال قد تكون فيه</p>
+                        </div>
+                    </li>
+                    <li class="tip-item">
+                        <img src="Time.png" class="tip-icon" alt="Pomodoro">
+                        <div class="tip-content">
+                            <strong>تقنية البومودورو</strong>
+                            <p>أخد فترة راحة بسيطة بعد كل مدة زمنية أو بعد كل مهمة</p>
+                        </div>
+                    </li>
+                    <li class="tip-item">
+                        <img src="win.png" class="tip-icon" alt="Motivation">
+                        <div class="tip-content">
+                            <strong>التحفيز</strong>
+                            <p>كافئ نفسك عند إتمام مهمة أو مهمات</p>
+                        </div>
+                    </li>
+                </ul>
+            </aside>
+        </div>
+
+        <footer class="footer">
+            <p>© 2024 الطريق إلى الأفضل. كل الحقوق محفوظة</p>
+        </footer>
+    </div>
+
+    <script src="../../theme.js"></script>
+    <script>
+        // Task Management
+        const taskList = document.getElementById('task-list');
+        const daySelect = document.getElementById('day-select');
+        const taskInput = document.getElementById('task-input');
+        const addBtn = document.getElementById('add-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const pageIndicator = document.getElementById('page-indicator');
+        const pointsBtn = document.getElementById('pointsBtn');
+        const popup = document.getElementById('popup');
+        const closePopupBtn = document.getElementById('closePopupBtn');
+
+        let tasks = [];
+        let currentPage = 0;
+        let tasksPerPage = window.innerWidth <= 599 ? 1 : 3; // Responsive tasks per page
+
+        // Initialize
+        loadTasks();
+
+        // Update tasks per page on resize
+        window.addEventListener('resize', function () {
+            const newTasksPerPage = window.innerWidth <= 599 ? 1 : 3;
+            if (newTasksPerPage !== tasksPerPage) {
+                tasksPerPage = newTasksPerPage;
+                currentPage = Math.min(currentPage, Math.ceil(tasks.length / tasksPerPage) - 1);
+                renderTasks();
+            }
+        });
+
+        // Load tasks from localStorage
+        function loadTasks() {
+            const selectedDay = daySelect.value;
+            const storedTasks = localStorage.getItem(`tasks-${selectedDay}`);
+            tasks = storedTasks ? JSON.parse(storedTasks) : [];
+            renderTasks();
+        }
+
+        // Save tasks to localStorage
+        function saveTasks() {
+            const selectedDay = daySelect.value;
+            localStorage.setItem(`tasks-${selectedDay}`, JSON.stringify(tasks));
+        }
+
+        // Add Task
+        function addTask() {
+            const text = taskInput.value.trim();
+            if (text) {
+                const task = {
+                    id: Date.now(),
+                    text,
+                    completed: false,
+                };
+                tasks.push(task);
+                saveTasks();
+                currentPage = Math.ceil(tasks.length / tasksPerPage) - 1;
+                renderTasks();
+                taskInput.value = '';
+                taskInput.focus();
+            }
+        }
+
+        // Add Task on Enter Key Press
+        taskInput.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Add Task on Button Click
+        addBtn.addEventListener('click', addTask);
+
+        // Toggle Task Completion
+        function toggleTask(id) {
+            tasks = tasks.map(task =>
+                task.id === id ? { ...task, completed: !task.completed } : task
+            );
+            saveTasks();
+            renderTasks();
+        }
+
+        // Delete Task with Animation
+        function deleteTask(id) {
+            const taskItem = document.querySelector(`.task-item[data-id="${id}"]`);
+            if (taskItem) {
+                taskItem.classList.add('deleting');
+                setTimeout(() => {
+                    tasks = tasks.filter(task => task.id !== id);
+                    saveTasks();
+                    currentPage = Math.min(currentPage, Math.ceil(tasks.length / tasksPerPage) - 1);
+                    if (tasks.length === 0) currentPage = 0;
+                    renderTasks();
+                }, 300);
+            }
+        }
+
+        // Render Tasks with Animation
+        function renderTasks() {
+            const start = currentPage * tasksPerPage;
+            const end = start + tasksPerPage;
+            const paginatedTasks = tasks.slice(start, end);
+
+            taskList.innerHTML = '';
+
+            paginatedTasks.forEach((task, index) => {
+                const taskItem = document.createElement('li');
+                taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskItem.setAttribute('data-id', task.id);
+                taskItem.innerHTML = `
+            <input type="checkbox"
+                   class="task-checkbox"
+                   ${task.completed ? 'checked' : ''}
+                   onchange="toggleTask(${task.id})">
+            <span class="task-text">${task.text}</span>
+            <button class="delete-btn" onclick="deleteTask(${task.id})">
+                X
+            </button>
+        `;
+
+                setTimeout(() => {
+                    taskItem.classList.add('active');
+                }, index * 100);
+
+                taskList.appendChild(taskItem);
+            });
+
+            // Update navigation
+            prevBtn.disabled = currentPage === 0;
+            nextBtn.disabled = end >= tasks.length;
+
+            const totalPages = Math.max(Math.ceil(tasks.length / tasksPerPage), 1);
+            const currentPageNumber = tasks.length === 0 ? 1 : currentPage + 1;
+            pageIndicator.textContent = `${totalPages} / ${currentPageNumber}`;
+        }
+
+        // Next Page with Animation
+        nextBtn.addEventListener('click', () => {
+            const currentTasks = document.querySelectorAll('.task-item');
+            currentTasks.forEach((task, index) => {
+                setTimeout(() => {
+                    task.classList.remove('active');
+                }, index * 50);
+            });
+
+            setTimeout(() => {
+                currentPage++;
+                renderTasks();
+            }, currentTasks.length * 50);
+        });
+
+        // Previous Page with Animation
+        prevBtn.addEventListener('click', () => {
+            const currentTasks = document.querySelectorAll('.task-item');
+            currentTasks.forEach((task, index) => {
+                setTimeout(() => {
+                    task.classList.remove('active');
+                }, index * 50);
+            });
+
+            setTimeout(() => {
+                currentPage--;
+                renderTasks();
+            }, currentTasks.length * 50);
+        });
+
+        // Change Day Event
+        daySelect.addEventListener('change', () => {
+            currentPage = 0;
+            loadTasks();
+        });
+
+        // Points Popup
+        pointsBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            popup.classList.add('active');
+        });
+        function goTolink() {
+            // Example: Get current date to build a unique URL
+            return 'https://www.paypal.com/paypalme/YFitraAwakeningY'
+        }
+        closePopupBtn.addEventListener('click', function () {
+            const supportUrl = goTolink();
+            window.open(supportUrl, '_blank');
+        });
+
+        popup.addEventListener('click', function (e) {
+            if (e.target === popup) {
+                popup.classList.remove('active');
+            }
+        });
+
+        // Close popup when pressing Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && popup.classList.contains('active')) {
+                popup.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+</html>
